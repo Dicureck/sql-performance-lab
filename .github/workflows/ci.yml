@@ -1,0 +1,54 @@
+name: SQL Performance Lab CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  static-quality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install project and test dependencies
+        run: python -m pip install -e . pytest
+      - name: Static test suite (no database required)
+        run: python -m pytest -q -m 'not integration'
+
+  sqlserver-integration:
+    runs-on: ubuntu-latest
+    timeout-minutes: 22
+    env:
+      SQLLAB_PASSWORD: "LocalCI_Only_2026!SqlLab#"
+      SQLLAB_HOST: 127.0.0.1
+      SQLLAB_PORT: "14333"
+      SQLLAB_DATABASE: SqlPerformanceLab
+      SQLLAB_USER: sa
+      SQLLAB_INTEGRATION: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install project
+        run: python -m pip install -e . pytest
+      - name: Start SQL Server Developer container
+        run: docker compose up -d
+      - name: Seed independent synthetic dataset
+        run: python -m perf_lab init --customers 2000 --orders 12000 --lines-per-order 3
+      - name: Validate SQL and Python
+        run: python -m pytest -q
+      - name: Benchmark smoke test (observations, not acceptance thresholds)
+        run: python -m perf_lab benchmark --iterations 3 --warmups 1 --out results/ci-benchmark.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sql-lab-results
+          path: results/*.json
+          if-no-files-found: ignore
+      - name: Shutdown
+        if: always()
+        run: docker compose down -v

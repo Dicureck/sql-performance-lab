@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sql-performance-lab"
+version = "0.1.0"
+description = "Synthetic SQL Server query optimization and benchmark laboratory"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+authors = [{name = "Melissa Castro"}]
+dependencies = ["pymssql>=2.3.2,<3.0", "python-dotenv>=1.0,<2.0"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = ["integration: requires a running local SQL Server test container"]
