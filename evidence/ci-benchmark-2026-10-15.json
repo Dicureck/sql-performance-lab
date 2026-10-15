@@ -1,0 +1,104 @@
+{
+  "lab": "SQL Performance Lab",
+  "timestamp_utc": "2026-10-15T18:20:39+00:00",
+  "execution_environment": {
+    "python": "3.11.17",
+    "system": "Linux",
+    "machine": "x86_64",
+    "database_engine": "Microsoft SQL Server (local container)",
+    "measurement": "client wall-clock elapsed time including result transfer",
+    "sql_server_version": "16.0.4305.5",
+    "sql_server_edition": "Developer Edition (64-bit)"
+  },
+  "window": {
+    "start_inclusive": "2024-03-01",
+    "end_exclusive": "2024-10-01"
+  },
+  "warmup_runs_per_variant": 1,
+  "measured_runs_per_variant": 3,
+  "cases": {
+    "date_filter": {
+      "validation": {
+        "equivalent": true,
+        "baseline_rows": 4,
+        "optimized_rows": 4,
+        "missing_row_instances": 0,
+        "extra_row_instances": 0,
+        "distinct_baseline_rows": 4,
+        "distinct_optimized_rows": 4
+      },
+      "baseline": {
+        "runs": 3,
+        "median_ms": 3.136,
+        "p95_ms": 3.172,
+        "min_ms": 3.099,
+        "max_ms": 3.175
+      },
+      "optimized": {
+        "runs": 3,
+        "median_ms": 1.928,
+        "p95_ms": 1.93,
+        "min_ms": 1.921,
+        "max_ms": 1.93
+      },
+      "speedup_ratio": 1.627,
+      "percent_reduction": 38.52,
+      "raw_ms": {
+        "baseline": [
+          3.136,
+          3.099,
+          3.175
+        ],
+        "optimized": [
+          1.928,
+          1.921,
+          1.93
+        ]
+      }
+    },
+    "report_aggregation": {
+      "validation": {
+        "equivalent": true,
+        "baseline_rows": 5052,
+        "optimized_rows": 5052,
+        "missing_row_instances": 0,
+        "extra_row_instances": 0,
+        "distinct_baseline_rows": 5052,
+        "distinct_optimized_rows": 5052
+      },
+      "baseline": {
+        "runs": 3,
+        "median_ms": 17.929,
+        "p95_ms": 22.424,
+        "min_ms": 16.255,
+        "max_ms": 22.924
+      },
+      "optimized": {
+        "runs": 3,
+        "median_ms": 16.117,
+        "p95_ms": 16.643,
+        "min_ms": 16.031,
+        "max_ms": 16.702
+      },
+      "speedup_ratio": 1.112,
+      "percent_reduction": 10.11,
+      "raw_ms": {
+        "baseline": [
+          16.255,
+          22.924,
+          17.929
+        ],
+        "optimized": [
+          16.702,
+          16.117,
+          16.031
+        ]
+      }
+    }
+  },
+  "synthetic_dataset": {
+    "customers": 2000,
+    "orders": 12000,
+    "order_lines": 36000
+  }
+}
