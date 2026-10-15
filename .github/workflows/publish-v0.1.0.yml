@@ -1,0 +1,48 @@
+name: Publish SQL Performance v0.1.0
+on:
+  workflow_run:
+    workflows: ["SQL Performance Lab CI"]
+    types: [completed]
+permissions:
+  contents: write
+
+jobs:
+  official-release:
+    if: >-
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'push' &&
+      github.event.workflow_run.head_branch == 'main' &&
+      github.event.workflow_run.head_repository.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Checkout the exact CI-tested source
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+          persist-credentials: false
+      - name: Publish only the tested commit; skip existing official release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EXPECTED_SHA: ${{ github.event.workflow_run.head_sha }}
+          GH_REPO: ${{ github.repository }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$EXPECTED_SHA"
+          test -f LICENSE
+          test -f RELEASE_NOTES.md
+          if gh release view v0.1.0 --repo "$GH_REPO" >/dev/null 2>&1; then
+            echo "Official v0.1.0 Release already exists; refusing to replace it."
+            exit 0
+          fi
+          if gh api "repos/$GH_REPO/git/ref/tags/v0.1.0" >/dev/null 2>&1; then
+            echo "Tag exists but no official release; refusing to reuse without review."
+            exit 1
+          fi
+          gh release create v0.1.0 --repo "$GH_REPO" \
+            --target "$EXPECTED_SHA" \
+            --title "SQL Performance Lab · v0.1.0" \
+            --notes-file RELEASE_NOTES.md \
+            --latest
+          gh release view v0.1.0 --repo "$GH_REPO" --json tagName,url,targetCommitish
