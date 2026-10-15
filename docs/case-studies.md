@@ -68,4 +68,4 @@ python -m perf_lab benchmark --iterations 15 --warmups 3 --out results/benchmark
 python scripts/render_benchmark.py results/benchmark.json results/benchmark.svg
 ```
 
-Add actual plan captures and hardware/software notes only after running SQL Server locally. No fixed performance numbers are included in this repository.
+The [first published CI benchmark evidence](verified-ci-benchmark-2026-10-15.md) comes from a real, temporary SQL Server Developer Edition container using only synthetic records. Plans and logical reads remain future measurements; timing differences from one CI runner must not be generalized.

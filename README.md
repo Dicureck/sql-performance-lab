@@ -13,7 +13,7 @@
 
 A reproducible **SQL Server performance engineering laboratory** that compares baseline and optimized T-SQL implementations against independently generated synthetic operational data. Built to showcase query reasoning, data integrity, measurement discipline, and production-minded engineering decisions — **not client code or a redacted customer system**.
 
-> **Engineering status: public technical preview (v0.1.0).** Nine static tests have passed in a Python-only environment. SQL Server integration tests and actual benchmark measurements have not yet been executed and are not claimed. Any benchmark values generated later are environment-dependent observations, not guarantees.
+> **Engineering status: public technical preview (v0.1.0).** GitHub Actions has successfully run both Python static checks and real SQL Server Developer Edition container integration tests with synthetic records. A measured CI smoke benchmark is available in [verified benchmark evidence](docs/verified-ci-benchmark-2026-10-15.md). These results are short, environment-specific observations—not production performance promises.
 
 ## Engineering focus
 
@@ -81,7 +81,7 @@ SQLLAB_INTEGRATION=1 python -m pytest -q
 4. Repeat on the same hardware, same data, same indexes, same date window; note SQL Server version and caching conditions.
 5. Treat an optimization as a *hypothesis*. The query optimizer may transform either version differently; the optimized variant may not always win.
 
-A local result file is deliberately **not pre-populated with fictional numbers**. The Python harness produces measured JSON after connecting to SQL Server; the SVG chart is created from that JSON.
+The repository does not pre-populate arbitrary demo performance figures. **One actual CI run** collected [reproducible, environment-specific observations](docs/verified-ci-benchmark-2026-10-15.md); the original JSON is preserved as a [GitHub Actions artifact](https://github.com/Dicureck/sql-performance-lab/actions/runs/38784723221). Further comparisons still require independent runs and execution-plan analysis.
 
 See [benchmark methodology](docs/methodology.md), [query plans](docs/query-plans.md), [case studies](docs/case-studies.md), and [engineering decisions](docs/engineering-decisions.md).
 
