@@ -17,3 +17,8 @@
 6. Explain *why* the measured result behaved as it did. A query that returns fewer rows or drops duplicates is not an optimization.
 
 Do not paste execution plans from a business system here. Use only plans captured from the synthetic lab.
+
+
+## Actual plan evidence — October 16, 2026
+
+The [verified deep-profile study](verified-deep-profile-2026-10-16.md) now contains 12 actual SQL Server ShowPlan XML files; for example, the [focused baseline scan](../evidence/deep-profiles/ci-38943948019/focused/date_filter-baseline.actual.sqlplan) and [focused rewrite seek](../evidence/deep-profiles/ci-38943948019/focused/date_filter-optimized.actual.sqlplan). In a one-day date window, logical page reads changed from 54 to 3, whereas both versions read 54 pages for the full year. Actual plans are separately captured after timing, so they are not guaranteed to be the exact plan instance of each earlier recorded trial.

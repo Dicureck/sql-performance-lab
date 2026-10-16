@@ -41,3 +41,16 @@
 **Decision:** Benchmark JSON/SVG are generated from live execution and ignored by Git until deliberately reviewed.
 
 **Reason:** Performance improvement claims need measured evidence from a specified environment.
+
+
+## ADR-008 — Separate server work from total client timing
+
+**Decision:** Retain the existing client-time benchmark and add a second profiler using SQL Server query-statistics DMV CPU, logical-read and server elapsed measurements. Actual plans are collected as separate executions after the measured samples.
+
+**Reason:** Transferring thousands of rows can obscure server-side CPU/read improvements. The [broad aggregation evidence](verified-deep-profile-2026-10-16.md) has lower server CPU/reads but slightly higher client elapsed time.
+
+## ADR-009 — Archive all synthetic evidence, not only favorable runs
+
+**Decision:** Three independent CI runners validate complete multisets and seven measurements for each variant in three date windows. Authentic actual plans and raw samples are preserved in Git only after all checks succeed. There is no test that assumes the rewrite must win.
+
+**Reason:** Performance improvements are falsifiable hypotheses; speed claims must be grounded in all collected observations and the exact environment.

@@ -68,4 +68,4 @@ python -m perf_lab benchmark --iterations 15 --warmups 3 --out results/benchmark
 python scripts/render_benchmark.py results/benchmark.json results/benchmark.svg
 ```
 
-The [first published CI benchmark evidence](verified-ci-benchmark-2026-10-15.md) comes from a real, temporary SQL Server Developer Edition container using only synthetic records. Plans and logical reads remain future measurements; timing differences from one CI runner must not be generalized.
+The [first published CI benchmark evidence](verified-ci-benchmark-2026-10-15.md) comes from a real, temporary SQL Server Developer Edition container using only synthetic records. The [deeper SQL Server 2022 profiling study](verified-deep-profile-2026-10-16.md) now includes server CPU, 8-KB logical reads, seven timed executions per variant and 12 actual plan XML files across three independent runners. The date rewrite saved the most logical reads for the single-day range; the aggregation rewrite saved server reads and CPU without consistently reducing total client elapsed time. These results cannot be generalized beyond this synthetic environment.

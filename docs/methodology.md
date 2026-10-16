@@ -39,8 +39,15 @@ Run `SQLLAB_INTEGRATION=1 pytest -q` for full-2024, multi-month and single-day w
 
 ## Deep-dive in SSMS
 
-To verify mechanism, capture actual execution plans (Ctrl+M) for each variant, and run `SET STATISTICS IO, TIME ON` separately. Compare index seek vs scan, logical reads, execution count, memory grants, spills and elapsed/CPU times. The Python benchmark harness **does not yet automate** SQL Server plan capture.
+To verify mechanism, capture actual execution plans (Ctrl+M) for each variant, and run `SET STATISTICS IO, TIME ON` separately. Compare index seek vs scan, logical reads, execution count, memory grants, spills and elapsed/CPU times. The original client-timing harness remains available. The [dedicated CPU/IO profiler](../src/perf_lab/profile.py) now automatically captures authentic SQL Server ShowPlan XML in separate executions and obtains CPU/read metrics from uniquely tagged query-statistics DMV statements.
 
 ## Reproducibility limitations
 
 Hardware, Docker virtualization, cache state, SQL Server patch version, degree of parallelism, tempdb and concurrent processes can change results. Never reuse someone else's timing as your own measurement. The GitHub CI benchmark is an integration smoke check, **not** a stable performance regression gate.
+
+
+## Verified three-runner deep profile
+
+The [deep-profile GitHub Actions workflow](../.github/workflows/deep-sql-profile.yml) runs three independent, disposable SQL Server Developer containers for focused, intermediate and broad date windows. Each runs two warmups and seven measured executions per variant, verifying complete result multisets before collecting CPU, 8-KB logical page reads, and independently captured actual XML plans. Only when every runner succeeds does [the archived evidence](../evidence/deep-profiles/ci-38943948019/) get committed to Git.
+
+**Limitations:** these are three different workload selectivities on three hosts, not repeated trials of an identical workload on three hosts. Seven in-run samples do not establish a robust p95 or a guaranteed improvement. [Read the actual observations](verified-deep-profile-2026-10-16.md).
