@@ -66,6 +66,10 @@ SQLLAB_INTEGRATION=1 python -m pytest -q
 python -m perf_lab.profile --window focused --warmups 2 --iterations 7 --out results/deep-focused
 ~~~
 
+## Observed sample variability
+
+The [separate variability report](variability-2026-10-16.md) computes sample standard deviation, coefficient of variation, median absolute deviation and ranges for **all 24 timing-series cells** (3 windows × 2 queries × 2 variants × CPU/client timing). The seven-sample p95 is explicitly labelled too weak for a robust tail-latency claim. Large percent differences can coexist with high relative variability for sub-millisecond query durations.
+
 ## Scope and limitations
 
 - Three independent runners covered **different date windows**, not repeated deployments of the identical window. There are seven **within-run** samples per variant, but no independent cross-run confidence interval for the same workload.
