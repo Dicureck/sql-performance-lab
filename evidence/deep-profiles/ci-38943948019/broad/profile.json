@@ -1,0 +1,622 @@
+{
+  "lab": "SQL Performance Lab \u00b7 deeper isolated synthetic profile",
+  "utc": "2026-10-16T18:00:36+00:00",
+  "window_name": "broad",
+  "window": {
+    "start_inclusive": "2024-01-01",
+    "end_exclusive": "2025-01-01"
+  },
+  "profile_method": {
+    "client_time": "perf_counter around full result fetch",
+    "sql_server_cpu": "sys.dm_exec_query_stats.last_worker_time / 1000 (milliseconds)",
+    "sql_server_elapsed": "sys.dm_exec_query_stats.last_elapsed_time / 1000 (milliseconds)",
+    "logical_reads": "sys.dm_exec_query_stats.last_logical_reads, 8-KB page counts",
+    "physical_reads": "sys.dm_exec_query_stats.last_physical_reads, 8-KB page counts",
+    "plans": "SET STATISTICS XML ON, actual post-execution plan after measured trials",
+    "note": "DMV metrics are scoped to the uniquely tagged executed statement; plans recorded separately are not the exact plan instance from each trial. No cache clearing or production performance generalization."
+  },
+  "environment": {
+    "python": "3.11.17",
+    "system": "Linux",
+    "machine": "x86_64",
+    "runner": "GitHub Actions 1000000432",
+    "sql_server_version": "16.0.4305.5",
+    "edition": "Developer Edition (64-bit)",
+    "product_level": "RTM",
+    "product_update_level": "CU27",
+    "sql_session_id": 54,
+    "reported_sql_cpus": 4,
+    "reported_memory_mb": 3277,
+    "synthetic_customers": 2000,
+    "synthetic_orders": 12000,
+    "synthetic_order_lines": 36000
+  },
+  "warmups": 2,
+  "iterations": 7,
+  "cases": {
+    "date_filter": {
+      "validation": {
+        "equivalent": true,
+        "baseline_rows": 4,
+        "optimized_rows": 4,
+        "missing_row_instances": 0,
+        "extra_row_instances": 0,
+        "distinct_baseline_rows": 4,
+        "distinct_optimized_rows": 4
+      },
+      "baseline": {
+        "raw_samples": [
+          {
+            "trial": 1,
+            "client_elapsed_ms": 5.096,
+            "execution_count": 4,
+            "worker_cpu_ms": 4.687,
+            "server_elapsed_ms": 4.687,
+            "logical_reads_8kb_pages": 54,
+            "physical_reads_8kb_pages": 0,
+            "logical_writes_8kb_pages": 0,
+            "query_hash": "0xD0814E8C8ABF18DE",
+            "plan_hash": "0x1FE6DEBC895E77D2"
+          },
+          {
+            "trial": 2,
+            "client_elapsed_ms": 5.218,
+            "execution_count": 5,
+            "worker_cpu_ms": 4.739,
+            "server_elapsed_ms": 4.74,
+            "logical_reads_8kb_pages": 54,
+            "physical_reads_8kb_pages": 0,
+            "logical_writes_8kb_pages": 0,
+            "query_hash": "0xD0814E8C8ABF18DE",
+            "plan_hash": "0x1FE6DEBC895E77D2"
+          },
+          {
+            "trial": 3,
+            "client_elapsed_ms": 5.198,
+            "execution_count": 6,
+            "worker_cpu_ms": 4.72,
+            "server_elapsed_ms": 4.72,
+            "logical_reads_8kb_pages": 54,
+            "physical_reads_8kb_pages": 0,
+            "logical_writes_8kb_pages": 0,
+            "query_hash": "0xD0814E8C8ABF18DE",
+            "plan_hash": "0x1FE6DEBC895E77D2"
+          },
+          {
+            "trial": 4,
+            "client_elapsed_ms": 5.262,
+            "execution_count": 7,
+            "worker_cpu_ms": 4.777,
+            "server_elapsed_ms": 4.777,
+            "logical_reads_8kb_pages": 54,
+            "physical_reads_8kb_pages": 0,
+            "logical_writes_8kb_pages": 0,
+            "query_hash": "0xD0814E8C8ABF18DE",
+            "plan_hash": "0x1FE6DEBC895E77D2"
+          },
+          {
+            "trial": 5,
+            "client_elapsed_ms": 5.432,
+            "execution_count": 8,
+            "worker_cpu_ms": 4.988,
+            "server_elapsed_ms": 4.988,
+            "logical_reads_8kb_pages": 54,
+            "physical_reads_8kb_pages": 0,
+            "logical_writes_8kb_pages": 0,
+            "query_hash": "0xD0814E8C8ABF18DE",
+            "plan_hash": "0x1FE6DEBC895E77D2"
+          },
+          {
+            "trial": 6,
+            "client_elapsed_ms": 5.17,
+            "execution_count": 9,
+            "worker_cpu_ms": 4.754,
+            "server_elapsed_ms": 4.755,
+            "logical_reads_8kb_pages": 54,
+            "physical_reads_8kb_pages": 0,
+            "logical_writes_8kb_pages": 0,
+            "query_hash": "0xD0814E8C8ABF18DE",
+            "plan_hash": "0x1FE6DEBC895E77D2"
+          },
+          {
+            "trial": 7,
+            "client_elapsed_ms": 5.649,
+            "execution_count": 10,
+            "worker_cpu_ms": 5.138,
+            "server_elapsed_ms": 5.139,
+            "logical_reads_8kb_pages": 54,
+            "physical_reads_8kb_pages": 0,
+            "logical_writes_8kb_pages": 0,
+            "query_hash": "0xD0814E8C8ABF18DE",
+            "plan_hash": "0x1FE6DEBC895E77D2"
+          }
+        ],
+        "summaries": {
+          "client_elapsed_ms": {
+            "runs": 7,
+            "median_ms": 5.218,
+            "p95_ms": 5.584,
+            "min_ms": 5.096,
+            "max_ms": 5.649
+          },
+          "worker_cpu_ms": {
+            "runs": 7,
+            "median_ms": 4.754,
+            "p95_ms": 5.093,
+            "min_ms": 4.687,
+            "max_ms": 5.138
+          },
+          "server_elapsed_ms": {
+            "runs": 7,
+            "median_ms": 4.755,
+            "p95_ms": 5.094,
+            "min_ms": 4.687,
+            "max_ms": 5.139
+          },
+          "logical_reads_8kb_pages": {
+            "runs": 7,
+            "median_ms": 54,
+            "p95_ms": 54.0,
+            "min_ms": 54,
+            "max_ms": 54
+          },
+          "physical_reads_8kb_pages": {
+            "runs": 7,
+            "median_ms": 0,
+            "p95_ms": 0.0,
+            "min_ms": 0,
+            "max_ms": 0
+          }
+        },
+        "actual_plan_file": "date_filter-baseline.actual.sqlplan",
+        "actual_plan": {
+          "plan_relops": 3,
+          "physical_operators": {
+            "Compute Scalar": 1,
+            "Hash Match": 1,
+            "Index Scan": 1
+          },
+          "actual_runtime_thread_counters": 2,
+          "warnings_nodes": 0,
+          "query_time_cpu_ms": 4,
+          "query_time_elapsed_ms": 4,
+          "parallel_relops": 0
+        }
+      },
+      "optimized": {
+        "raw_samples": [
+          {
+            "trial": 1,
+            "client_elapsed_ms": 4.063,
+            "execution_count": 4,
+            "worker_cpu_ms": 3.613,
+            "server_elapsed_ms": 3.613,
+            "logical_reads_8kb_pages": 54,
+            "physical_reads_8kb_pages": 0,
+            "logical_writes_8kb_pages": 0,
+            "query_hash": "0x48CB714A5661CB9E",
+            "plan_hash": "0xABAFD8947A32C1E4"
+          },
+          {
+            "trial": 2,
+            "client_elapsed_ms": 3.865,
+            "execution_count": 5,
+            "worker_cpu_ms": 3.431,
+            "server_elapsed_ms": 3.431,
+            "logical_reads_8kb_pages": 54,
+            "physical_reads_8kb_pages": 0,
+            "logical_writes_8kb_pages": 0,
+            "query_hash": "0x48CB714A5661CB9E",
+            "plan_hash": "0xABAFD8947A32C1E4"
+          },
+          {
+            "trial": 3,
+            "client_elapsed_ms": 3.985,
+            "execution_count": 6,
+            "worker_cpu_ms": 3.474,
+            "server_elapsed_ms": 3.474,
+            "logical_reads_8kb_pages": 54,
+            "physical_reads_8kb_pages": 0,
+            "logical_writes_8kb_pages": 0,
+            "query_hash": "0x48CB714A5661CB9E",
+            "plan_hash": "0xABAFD8947A32C1E4"
+          },
+          {
+            "trial": 4,
+            "client_elapsed_ms": 4.106,
+            "execution_count": 7,
+            "worker_cpu_ms": 3.612,
+            "server_elapsed_ms": 3.612,
+            "logical_reads_8kb_pages": 54,
+            "physical_reads_8kb_pages": 0,
+            "logical_writes_8kb_pages": 0,
+            "query_hash": "0x48CB714A5661CB9E",
+            "plan_hash": "0xABAFD8947A32C1E4"
+          },
+          {
+            "trial": 5,
+            "client_elapsed_ms": 3.949,
+            "execution_count": 8,
+            "worker_cpu_ms": 3.477,
+            "server_elapsed_ms": 3.478,
+            "logical_reads_8kb_pages": 54,
+            "physical_reads_8kb_pages": 0,
+            "logical_writes_8kb_pages": 0,
+            "query_hash": "0x48CB714A5661CB9E",
+            "plan_hash": "0xABAFD8947A32C1E4"
+          },
+          {
+            "trial": 6,
+            "client_elapsed_ms": 3.995,
+            "execution_count": 9,
+            "worker_cpu_ms": 3.478,
+            "server_elapsed_ms": 3.478,
+            "logical_reads_8kb_pages": 54,
+            "physical_reads_8kb_pages": 0,
+            "logical_writes_8kb_pages": 0,
+            "query_hash": "0x48CB714A5661CB9E",
+            "plan_hash": "0xABAFD8947A32C1E4"
+          },
+          {
+            "trial": 7,
+            "client_elapsed_ms": 4.015,
+            "execution_count": 10,
+            "worker_cpu_ms": 3.571,
+            "server_elapsed_ms": 3.571,
+            "logical_reads_8kb_pages": 54,
+            "physical_reads_8kb_pages": 0,
+            "logical_writes_8kb_pages": 0,
+            "query_hash": "0x48CB714A5661CB9E",
+            "plan_hash": "0xABAFD8947A32C1E4"
+          }
+        ],
+        "summaries": {
+          "client_elapsed_ms": {
+            "runs": 7,
+            "median_ms": 3.995,
+            "p95_ms": 4.093,
+            "min_ms": 3.865,
+            "max_ms": 4.106
+          },
+          "worker_cpu_ms": {
+            "runs": 7,
+            "median_ms": 3.478,
+            "p95_ms": 3.613,
+            "min_ms": 3.431,
+            "max_ms": 3.613
+          },
+          "server_elapsed_ms": {
+            "runs": 7,
+            "median_ms": 3.478,
+            "p95_ms": 3.613,
+            "min_ms": 3.431,
+            "max_ms": 3.613
+          },
+          "logical_reads_8kb_pages": {
+            "runs": 7,
+            "median_ms": 54,
+            "p95_ms": 54.0,
+            "min_ms": 54,
+            "max_ms": 54
+          },
+          "physical_reads_8kb_pages": {
+            "runs": 7,
+            "median_ms": 0,
+            "p95_ms": 0.0,
+            "min_ms": 0,
+            "max_ms": 0
+          }
+        },
+        "actual_plan_file": "date_filter-optimized.actual.sqlplan",
+        "actual_plan": {
+          "plan_relops": 3,
+          "physical_operators": {
+            "Compute Scalar": 1,
+            "Hash Match": 1,
+            "Index Seek": 1
+          },
+          "actual_runtime_thread_counters": 2,
+          "warnings_nodes": 0,
+          "query_time_cpu_ms": 3,
+          "query_time_elapsed_ms": 3,
+          "parallel_relops": 0
+        }
+      }
+    },
+    "report_aggregation": {
+      "validation": {
+        "equivalent": true,
+        "baseline_rows": 8571,
+        "optimized_rows": 8571,
+        "missing_row_instances": 0,
+        "extra_row_instances": 0,
+        "distinct_baseline_rows": 8571,
+        "distinct_optimized_rows": 8571
+      },
+      "baseline": {
+        "raw_samples": [
+          {
+            "trial": 1,
+            "client_elapsed_ms": 37.008,
+            "execution_count": 4,
+            "worker_cpu_ms": 21.985,
+            "server_elapsed_ms": 21.987,
+            "logical_reads_8kb_pages": 228,
+            "physical_reads_8kb_pages": 0,
+            "logical_writes_8kb_pages": 0,
+            "query_hash": "0xCEC6C94B7BC54615",
+            "plan_hash": "0xF322FDA18E464717"
+          },
+          {
+            "trial": 2,
+            "client_elapsed_ms": 36.646,
+            "execution_count": 5,
+            "worker_cpu_ms": 21.849,
+            "server_elapsed_ms": 21.851,
+            "logical_reads_8kb_pages": 228,
+            "physical_reads_8kb_pages": 0,
+            "logical_writes_8kb_pages": 0,
+            "query_hash": "0xCEC6C94B7BC54615",
+            "plan_hash": "0xF322FDA18E464717"
+          },
+          {
+            "trial": 3,
+            "client_elapsed_ms": 36.34,
+            "execution_count": 6,
+            "worker_cpu_ms": 21.761,
+            "server_elapsed_ms": 21.762,
+            "logical_reads_8kb_pages": 228,
+            "physical_reads_8kb_pages": 0,
+            "logical_writes_8kb_pages": 0,
+            "query_hash": "0xCEC6C94B7BC54615",
+            "plan_hash": "0xF322FDA18E464717"
+          },
+          {
+            "trial": 4,
+            "client_elapsed_ms": 36.276,
+            "execution_count": 7,
+            "worker_cpu_ms": 22.007,
+            "server_elapsed_ms": 22.008,
+            "logical_reads_8kb_pages": 228,
+            "physical_reads_8kb_pages": 0,
+            "logical_writes_8kb_pages": 0,
+            "query_hash": "0xCEC6C94B7BC54615",
+            "plan_hash": "0xF322FDA18E464717"
+          },
+          {
+            "trial": 5,
+            "client_elapsed_ms": 36.274,
+            "execution_count": 8,
+            "worker_cpu_ms": 21.859,
+            "server_elapsed_ms": 21.86,
+            "logical_reads_8kb_pages": 228,
+            "physical_reads_8kb_pages": 0,
+            "logical_writes_8kb_pages": 0,
+            "query_hash": "0xCEC6C94B7BC54615",
+            "plan_hash": "0xF322FDA18E464717"
+          },
+          {
+            "trial": 6,
+            "client_elapsed_ms": 36.498,
+            "execution_count": 9,
+            "worker_cpu_ms": 21.911,
+            "server_elapsed_ms": 21.912,
+            "logical_reads_8kb_pages": 228,
+            "physical_reads_8kb_pages": 0,
+            "logical_writes_8kb_pages": 0,
+            "query_hash": "0xCEC6C94B7BC54615",
+            "plan_hash": "0xF322FDA18E464717"
+          },
+          {
+            "trial": 7,
+            "client_elapsed_ms": 36.567,
+            "execution_count": 10,
+            "worker_cpu_ms": 22.02,
+            "server_elapsed_ms": 22.022,
+            "logical_reads_8kb_pages": 228,
+            "physical_reads_8kb_pages": 0,
+            "logical_writes_8kb_pages": 0,
+            "query_hash": "0xCEC6C94B7BC54615",
+            "plan_hash": "0xF322FDA18E464717"
+          }
+        ],
+        "summaries": {
+          "client_elapsed_ms": {
+            "runs": 7,
+            "median_ms": 36.498,
+            "p95_ms": 36.899,
+            "min_ms": 36.274,
+            "max_ms": 37.008
+          },
+          "worker_cpu_ms": {
+            "runs": 7,
+            "median_ms": 21.911,
+            "p95_ms": 22.016,
+            "min_ms": 21.761,
+            "max_ms": 22.02
+          },
+          "server_elapsed_ms": {
+            "runs": 7,
+            "median_ms": 21.912,
+            "p95_ms": 22.018,
+            "min_ms": 21.762,
+            "max_ms": 22.022
+          },
+          "logical_reads_8kb_pages": {
+            "runs": 7,
+            "median_ms": 228,
+            "p95_ms": 228.0,
+            "min_ms": 228,
+            "max_ms": 228
+          },
+          "physical_reads_8kb_pages": {
+            "runs": 7,
+            "median_ms": 0,
+            "p95_ms": 0.0,
+            "min_ms": 0,
+            "max_ms": 0
+          }
+        },
+        "actual_plan_file": "report_aggregation-baseline.actual.sqlplan",
+        "actual_plan": {
+          "plan_relops": 10,
+          "physical_operators": {
+            "Clustered Index Scan": 2,
+            "Compute Scalar": 2,
+            "Index Seek": 1,
+            "Merge Join": 2,
+            "Sort": 1,
+            "Stream Aggregate": 2
+          },
+          "actual_runtime_thread_counters": 8,
+          "warnings_nodes": 0,
+          "query_time_cpu_ms": 24,
+          "query_time_elapsed_ms": 24,
+          "parallel_relops": 0
+        }
+      },
+      "optimized": {
+        "raw_samples": [
+          {
+            "trial": 1,
+            "client_elapsed_ms": 37.415,
+            "execution_count": 4,
+            "worker_cpu_ms": 15.708,
+            "server_elapsed_ms": 15.708,
+            "logical_reads_8kb_pages": 141,
+            "physical_reads_8kb_pages": 0,
+            "logical_writes_8kb_pages": 0,
+            "query_hash": "0xB25C54D9BC80FF75",
+            "plan_hash": "0xB90CE1F74F617628"
+          },
+          {
+            "trial": 2,
+            "client_elapsed_ms": 40.894,
+            "execution_count": 5,
+            "worker_cpu_ms": 15.51,
+            "server_elapsed_ms": 15.511,
+            "logical_reads_8kb_pages": 141,
+            "physical_reads_8kb_pages": 0,
+            "logical_writes_8kb_pages": 0,
+            "query_hash": "0xB25C54D9BC80FF75",
+            "plan_hash": "0xB90CE1F74F617628"
+          },
+          {
+            "trial": 3,
+            "client_elapsed_ms": 36.774,
+            "execution_count": 6,
+            "worker_cpu_ms": 15.491,
+            "server_elapsed_ms": 15.492,
+            "logical_reads_8kb_pages": 141,
+            "physical_reads_8kb_pages": 0,
+            "logical_writes_8kb_pages": 0,
+            "query_hash": "0xB25C54D9BC80FF75",
+            "plan_hash": "0xB90CE1F74F617628"
+          },
+          {
+            "trial": 4,
+            "client_elapsed_ms": 36.075,
+            "execution_count": 7,
+            "worker_cpu_ms": 14.963,
+            "server_elapsed_ms": 14.964,
+            "logical_reads_8kb_pages": 141,
+            "physical_reads_8kb_pages": 0,
+            "logical_writes_8kb_pages": 0,
+            "query_hash": "0xB25C54D9BC80FF75",
+            "plan_hash": "0xB90CE1F74F617628"
+          },
+          {
+            "trial": 5,
+            "client_elapsed_ms": 37.04,
+            "execution_count": 8,
+            "worker_cpu_ms": 15.434,
+            "server_elapsed_ms": 15.435,
+            "logical_reads_8kb_pages": 141,
+            "physical_reads_8kb_pages": 0,
+            "logical_writes_8kb_pages": 0,
+            "query_hash": "0xB25C54D9BC80FF75",
+            "plan_hash": "0xB90CE1F74F617628"
+          },
+          {
+            "trial": 6,
+            "client_elapsed_ms": 36.306,
+            "execution_count": 9,
+            "worker_cpu_ms": 15.75,
+            "server_elapsed_ms": 15.751,
+            "logical_reads_8kb_pages": 141,
+            "physical_reads_8kb_pages": 0,
+            "logical_writes_8kb_pages": 0,
+            "query_hash": "0xB25C54D9BC80FF75",
+            "plan_hash": "0xB90CE1F74F617628"
+          },
+          {
+            "trial": 7,
+            "client_elapsed_ms": 36.748,
+            "execution_count": 10,
+            "worker_cpu_ms": 15.614,
+            "server_elapsed_ms": 15.614,
+            "logical_reads_8kb_pages": 141,
+            "physical_reads_8kb_pages": 0,
+            "logical_writes_8kb_pages": 0,
+            "query_hash": "0xB25C54D9BC80FF75",
+            "plan_hash": "0xB90CE1F74F617628"
+          }
+        ],
+        "summaries": {
+          "client_elapsed_ms": {
+            "runs": 7,
+            "median_ms": 36.774,
+            "p95_ms": 39.85,
+            "min_ms": 36.075,
+            "max_ms": 40.894
+          },
+          "worker_cpu_ms": {
+            "runs": 7,
+            "median_ms": 15.51,
+            "p95_ms": 15.737,
+            "min_ms": 14.963,
+            "max_ms": 15.75
+          },
+          "server_elapsed_ms": {
+            "runs": 7,
+            "median_ms": 15.511,
+            "p95_ms": 15.738,
+            "min_ms": 14.964,
+            "max_ms": 15.751
+          },
+          "logical_reads_8kb_pages": {
+            "runs": 7,
+            "median_ms": 141,
+            "p95_ms": 141.0,
+            "min_ms": 141,
+            "max_ms": 141
+          },
+          "physical_reads_8kb_pages": {
+            "runs": 7,
+            "median_ms": 0,
+            "p95_ms": 0.0,
+            "min_ms": 0,
+            "max_ms": 0
+          }
+        },
+        "actual_plan_file": "report_aggregation-optimized.actual.sqlplan",
+        "actual_plan": {
+          "plan_relops": 6,
+          "physical_operators": {
+            "Clustered Index Scan": 1,
+            "Compute Scalar": 1,
+            "Index Seek": 1,
+            "Merge Join": 1,
+            "Sort": 1,
+            "Stream Aggregate": 1
+          },
+          "actual_runtime_thread_counters": 5,
+          "warnings_nodes": 0,
+          "query_time_cpu_ms": 17,
+          "query_time_elapsed_ms": 17,
+          "parallel_relops": 0
+        }
+      }
+    }
+  }
+}

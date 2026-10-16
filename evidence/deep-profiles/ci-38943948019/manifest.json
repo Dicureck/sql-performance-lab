@@ -1,0 +1,88 @@
+{
+  "run_id": "38943948019",
+  "source_url": "https://github.com/Dicureck/sql-performance-lab/actions/runs/38943948019",
+  "disclosure": "Independent synthetic GitHub Actions runners; environment-specific observations, not a performance guarantee",
+  "windows": {
+    "broad": {
+      "file": "broad/profile.json",
+      "sql_server_version": "16.0.4305.5",
+      "synthetic_dataset": {
+        "customers": 2000,
+        "orders": 12000,
+        "order_lines": 36000
+      },
+      "cases": {
+        "date_filter": {
+          "equivalent": true,
+          "baseline_rows": 4,
+          "baseline_logical_reads_median": 54,
+          "optimized_logical_reads_median": 54,
+          "baseline_cpu_ms_median": 4.754,
+          "optimized_cpu_ms_median": 3.478
+        },
+        "report_aggregation": {
+          "equivalent": true,
+          "baseline_rows": 8571,
+          "baseline_logical_reads_median": 228,
+          "optimized_logical_reads_median": 141,
+          "baseline_cpu_ms_median": 21.911,
+          "optimized_cpu_ms_median": 15.51
+        }
+      }
+    },
+    "focused": {
+      "file": "focused/profile.json",
+      "sql_server_version": "16.0.4305.5",
+      "synthetic_dataset": {
+        "customers": 2000,
+        "orders": 12000,
+        "order_lines": 36000
+      },
+      "cases": {
+        "date_filter": {
+          "equivalent": true,
+          "baseline_rows": 4,
+          "baseline_logical_reads_median": 54,
+          "optimized_logical_reads_median": 3,
+          "baseline_cpu_ms_median": 1.281,
+          "optimized_cpu_ms_median": 0.162
+        },
+        "report_aggregation": {
+          "equivalent": true,
+          "baseline_rows": 23,
+          "baseline_logical_reads_median": 165,
+          "optimized_logical_reads_median": 84,
+          "baseline_cpu_ms_median": 5.981,
+          "optimized_cpu_ms_median": 3.548
+        }
+      }
+    },
+    "intermediate": {
+      "file": "intermediate/profile.json",
+      "sql_server_version": "16.0.4305.5",
+      "synthetic_dataset": {
+        "customers": 2000,
+        "orders": 12000,
+        "order_lines": 36000
+      },
+      "cases": {
+        "date_filter": {
+          "equivalent": true,
+          "baseline_rows": 4,
+          "baseline_logical_reads_median": 54,
+          "optimized_logical_reads_median": 33,
+          "baseline_cpu_ms_median": 2.857,
+          "optimized_cpu_ms_median": 1.672
+        },
+        "report_aggregation": {
+          "equivalent": true,
+          "baseline_rows": 5052,
+          "baseline_logical_reads_median": 207,
+          "optimized_logical_reads_median": 120,
+          "baseline_cpu_ms_median": 13.192,
+          "optimized_cpu_ms_median": 8.602
+        }
+      }
+    }
+  }
+}
