@@ -74,14 +74,14 @@ def _server_stats(connection, marker: str) -> dict:
         candidates = cur.fetchall()
     matching = [
         item for item in candidates
-        if marker in item["statement_text"]
-        and "SELECT" in item["statement_text"].upper()
+        if "SELECT" in item["statement_text"].upper()
         and "lab.orders" in item["statement_text"]
     ]
     if len(matching) != 1:
         raise RuntimeError(
             f"Expected exactly one cached server statement for {marker}; "
-            f"found {len(matching)}; refusing ungrounded DMV statistics"
+            f"found {len(matching)} after filtering {len(candidates)} tagged batch statements; "
+            "refusing ungrounded DMV statistics"
         )
     row = matching[0]
     return {
