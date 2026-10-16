@@ -1,0 +1,103 @@
+name: SQL Server · Actual Plan & CPU/IO Evidence
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'src/perf_lab/profile.py'
+      - 'tests/test_profile.py'
+      - '.github/workflows/deep-sql-profile.yml'
+      - 'sql/**'
+  pull_request:
+    paths:
+      - 'src/perf_lab/profile.py'
+      - 'tests/test_profile.py'
+      - '.github/workflows/deep-sql-profile.yml'
+      - 'sql/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  independent-profile-runners:
+    name: SQL Developer / ${{ matrix.window }} selectivity
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        window: [broad, focused, intermediate]
+    env:
+      SQLLAB_HOST: 127.0.0.1
+      SQLLAB_PORT: '14333'
+      SQLLAB_DATABASE: SqlPerformanceLab
+      SQLLAB_USER: sa
+      SQLLAB_INTEGRATION: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install lab dependencies
+        run: python -m pip install -e . pytest
+      - name: Test profiling parser and existing offline semantics
+        run: python -m pytest -q -m 'not integration'
+      - name: Create disposable SQL Server password
+        shell: bash
+        run: |
+          set -euo pipefail
+          password="$(python -c 'import secrets; print("SafeCiOnly_2026!"+secrets.token_hex(16))')"
+          echo "::add-mask::$password"
+          printf 'SQLLAB_PASSWORD=%s\n' "$password" >> "$GITHUB_ENV"
+      - name: Start disposable local SQL Server Developer 2022
+        run: docker compose up -d
+      - name: Seed matching deterministic fictional data
+        run: python -m perf_lab init --customers 2000 --orders 12000 --lines-per-order 3
+      - name: Verify full multiset equivalence for all synthetic windows
+        run: python -m pytest -q -m integration
+      - name: Profile server CPU, logical reads, individual runs and actual plans
+        run: >-
+          python -m perf_lab.profile
+          --window ${{ matrix.window }}
+          --warmups 2
+          --iterations 7
+          --out results/deep-${{ matrix.window }}
+      - name: Basic evidence assertions (never assert one query is always faster)
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          window = os.environ["PROFILE_WINDOW"]
+          target = Path("results") / ("deep-" + window)
+          p = json.loads((target / "profile.json").read_text(encoding="utf-8"))
+          assert p["environment"]["synthetic_orders"] == 12000
+          assert p["window_name"] == window
+          assert len(p["cases"]) == 2
+          for c in p["cases"].values():
+              assert c["validation"]["equivalent"]
+              assert c["validation"]["missing_row_instances"] == 0
+              assert c["validation"]["extra_row_instances"] == 0
+              for v in ("baseline", "optimized"):
+                  assert len(c[v]["raw_samples"]) == 7
+                  assert all(x["logical_reads_8kb_pages"] >= 0 for x in c[v]["raw_samples"])
+                  assert all(x["worker_cpu_ms"] >= 0 for x in c[v]["raw_samples"])
+                  plan_file = target / c[v]["actual_plan_file"]
+                  assert plan_file.is_file() and "ShowPlanXML" in plan_file.read_text(encoding="utf-8")
+          print("Evidence present: all results identical, actual plans, 7 trials per variant")
+          PY
+        env:
+          PROFILE_WINDOW: ${{ matrix.window }}
+      - name: Preserve raw independent SQL Server evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sql-deep-profile-${{ matrix.window }}
+          path: results/deep-${{ matrix.window }}/
+          if-no-files-found: ignore
+          retention-days: 30
+      - name: Tear down isolated test database volume and container
+        if: always()
+        run: docker compose down -v
