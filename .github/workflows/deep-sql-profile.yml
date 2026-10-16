@@ -6,12 +6,14 @@ on:
     paths:
       - 'src/perf_lab/profile.py'
       - 'tests/test_profile.py'
+      - 'scripts/archive_deep_profile.py'
       - '.github/workflows/deep-sql-profile.yml'
       - 'sql/**'
   pull_request:
     paths:
       - 'src/perf_lab/profile.py'
       - 'tests/test_profile.py'
+      - 'scripts/archive_deep_profile.py'
       - '.github/workflows/deep-sql-profile.yml'
       - 'sql/**'
   workflow_dispatch:
@@ -101,3 +103,42 @@ jobs:
       - name: Tear down isolated test database volume and container
         if: always()
         run: docker compose down -v
+
+  archive-verified-profiles:
+    name: Preserve synthetic XML plans and raw run metrics in Git history
+    needs: independent-profile-runners
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Download all three successful independent runner artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: sql-deep-profile-*
+          path: downloaded-sql-profiles
+          merge-multiple: false
+      - name: Validate provenance and prepare permanent benchmark evidence
+        run: >-
+          python scripts/archive_deep_profile.py
+          --input downloaded-sql-profiles
+          --destination evidence/deep-profiles/ci-${{ github.run_id }}
+          --run-id ${{ github.run_id }}
+      - name: Publish immutable, synthetic-only evidence files
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add "evidence/deep-profiles/ci-${{ github.run_id }}"
+          git commit -m "Archive actual SQL plans and CPU IO from CI run ${{ github.run_id }}"
+          git fetch origin main
+          git rebase origin/main
+          git push origin HEAD:main
