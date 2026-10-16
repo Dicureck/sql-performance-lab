@@ -13,7 +13,7 @@
 
 A reproducible **SQL Server performance engineering laboratory** that compares baseline and optimized T-SQL implementations against independently generated synthetic operational data. Built to showcase query reasoning, data integrity, measurement discipline, and production-minded engineering decisions — **not client code or a redacted customer system**.
 
-> **Engineering status: public technical preview (v0.1.0).** GitHub Actions has successfully run both Python static checks and real SQL Server Developer Edition container integration tests with synthetic records. A measured CI smoke benchmark is available in [verified benchmark evidence](docs/verified-ci-benchmark-2026-10-15.md). These results are short, environment-specific observations—not production performance promises.
+> **Engineering status: public technical preview (v0.1.0).** GitHub Actions has successfully run both Python static checks and real SQL Server Developer Edition container integration tests with synthetic records. The first [CI timing benchmark](docs/verified-ci-benchmark-2026-10-15.md) and a new [three-runner CPU/IO and execution-plan study](docs/verified-deep-profile-2026-10-16.md) are published with source-backed evidence. These results are short, environment-specific observations—not production performance promises.
 
 ## Engineering focus
 
@@ -57,6 +57,8 @@ python -m pytest -q
 python -m perf_lab validate
 python -m perf_lab benchmark --iterations 7 --warmups 2 --out results/benchmark.json
 python scripts/render_benchmark.py results/benchmark.json results/benchmark.svg
+# Optional: real server CPU, logical reads and actual plans
+python -m perf_lab.profile --window focused --warmups 2 --iterations 7 --out results/deep-focused
 ```
 
 
@@ -81,7 +83,7 @@ SQLLAB_INTEGRATION=1 python -m pytest -q
 4. Repeat on the same hardware, same data, same indexes, same date window; note SQL Server version and caching conditions.
 5. Treat an optimization as a *hypothesis*. The query optimizer may transform either version differently; the optimized variant may not always win.
 
-The repository does not pre-populate arbitrary demo performance figures. **One actual CI run** collected [reproducible, environment-specific observations](docs/verified-ci-benchmark-2026-10-15.md); the original JSON is preserved as a [GitHub Actions artifact](https://github.com/Dicureck/sql-performance-lab/actions/runs/38784723221). Further comparisons still require independent runs and execution-plan analysis.
+The repository does not pre-populate arbitrary demo performance figures. The [original client-time smoke run](docs/verified-ci-benchmark-2026-10-15.md) is now complemented by the [deep SQL Server profiling study](docs/verified-deep-profile-2026-10-16.md), which captures SQL Server CPU, logical page reads, and 12 actual execution plans using three independent selectivity-window runners. The [permanent evidence](evidence/deep-profiles/ci-38943948019/) includes all seven measured trials per variant and raw XML plans. Observations are environment-specific, not production promises.
 
 See [benchmark methodology](docs/methodology.md), [query plans](docs/query-plans.md), [case studies](docs/case-studies.md), and [engineering decisions](docs/engineering-decisions.md).
 
@@ -92,12 +94,13 @@ assets/                    Custom cyber-noir SVG identity
 sql/00_schema.sql          Synthetic schema, keys and covering index
 sql/01_seed.sql            Deterministic SQL Server seeding procedure
 sql/cases/                 Baseline vs optimized query pairs
-src/perf_lab/              Safe CLI, result-set validator, benchmark harness
+src/perf_lab/              Safe CLI, multiset validator, benchmark and CPU/IO profiler
 tests/                     Static checks and opt-in SQL Server integration tests
-scripts/                   Convert actual benchmark JSON to an SVG comparison chart
+scripts/                   Benchmark charts and checked evidence archiver
 docs/                      Architecture, methodology, plan review and decisions
 .github/workflows/         CI with container-backed semantic checks
 results/                   Local generated results, gitignored
+evidence/deep-profiles/    Permanent SQL Server actual plans and measured CPU/IO JSON
 ```
 
 ## Engineering trade-offs
@@ -106,7 +109,7 @@ results/                   Local generated results, gitignored
 - Half-open date intervals are equivalent to whole-calendar-day `DATEDIFF` filters **only for the midnight-aligned parameters enforced by the CLI**.
 - The grouped-join rewrite assumes every order has at least one line; the synthetic generator enforces this invariant. A real application would require explicit decisions for missing detail rows.
 - Integer **cents** avoid floating-point discrepancies in financial-style aggregates.
-- Client-side elapsed measurements include network + fetch overhead; capture logical reads and execution plans separately for a deeper diagnosis.
+- Client-side elapsed measurements include network and result transfer overhead. [The CPU/IO and plan study](docs/verified-deep-profile-2026-10-16.md) explains why saving server work does not always shorten client elapsed time.
 
 ## Ethical boundaries
 
